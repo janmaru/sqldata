@@ -1,12 +1,39 @@
 ﻿namespace SQLAccess
+    type SQLProvider = SQLServer | SQLite| SQLCe 
+
+    module CnFactory = 
+        open System.Data
+        open System.Data.SQLite
+        open System.Data.SqlClient
+        open System.Data.SqlServerCe
+        let create (provider:SQLProvider,connectionString:string) =
+            let cn:IDbConnection =
+                match provider with
+                | SQLite -> new SQLiteConnection(connectionString) :> IDbConnection
+                | SQLCe  -> new SqlCeConnection(connectionString) :> IDbConnection
+                | _-> new SqlConnection(connectionString) :> IDbConnection 
+            cn
+
+    module CmdFactory = 
+        open System.Data
+        open System.Data.SQLite
+        open System.Data.SqlClient
+        open System.Data.SqlServerCe
+        let create (provider:SQLProvider,connectionString:string,cn:IDbConnection,sql:string) =
+            let cmd:IDbCommand = 
+                match provider with
+                | SQLite -> new SQLiteCommand(sql,cn:?>SQLiteConnection):> IDbCommand
+                | SQLCe -> new SqlCeCommand(sql,cn:?>SqlCeConnection):> IDbCommand
+                | _-> new SqlCommand(sql,cn:?>SqlConnection):> IDbCommand 
+            cmd
+ 
+
     module SQLData =
         open System.Data
         open System.Data.SQLite
         open System.Data.SqlClient
         open System.Data.SqlServerCe
         open Railway
-
-        type SQLProvider = SQLServer | SQLite| SQLCe  
         
         let createCn (provider:SQLProvider,connectionString:string) =
          try
@@ -41,23 +68,6 @@
             finally
                cn.Close()
 
-        let private justCreateCn (provider:SQLProvider,connectionString:string) =
-            let cn:IDbConnection =
-                match provider with
-                | SQLite -> new SQLiteConnection(connectionString) :> IDbConnection
-                | SQLCe  -> new SqlCeConnection(connectionString) :> IDbConnection
-                | _-> new SqlConnection(connectionString) :> IDbConnection 
-            cn
- 
-        let private justCreateCmd (provider:SQLProvider,connectionString:string,cn:IDbConnection,sql:string) =
-            let cmd:IDbCommand = 
-                match provider with
-                | SQLite -> new SQLiteCommand(sql,cn:?>SQLiteConnection):> IDbCommand
-                | SQLCe -> new SqlCeCommand(sql,cn:?>SqlCeConnection):> IDbCommand
-                | _-> new SqlCommand(sql,cn:?>SqlConnection):> IDbCommand 
-            cmd
- 
-                     
        //method to check connection
         let checkConnection (provider:SQLProvider,connectionString:string)  =
             createCn (provider,connectionString) 
@@ -72,8 +82,8 @@
                         parameters:seq<string*'paramValue>,
                         toType:IDataReader->'Result)  = 
                  seq { 
-                        use cn = justCreateCn(provider,connectionString)
-                        use cmd = justCreateCmd(provider,connectionString,cn, sql)  
+                        use cn = CnFactory.create(provider,connectionString)
+                        use cmd = CmdFactory.create(provider,connectionString,cn, sql)  
                         cmd.CommandType<-ct 
                         cn.Open()
                         use reader = cmd.ExecuteReader()
@@ -89,8 +99,8 @@
                    toType:IDataReader->'Result)  = 
            try
               let someValues = seq { 
-                        use cn = justCreateCn(provider,connectionString)
-                        use cmd = justCreateCmd(provider,connectionString,cn, sql)  
+                        use cn =  CnFactory.create(provider,connectionString)
+                        use cmd = CmdFactory.create(provider,connectionString,cn, sql)  
                         cmd.CommandType<-ct 
                         cn.Open()
                         use reader = cmd.ExecuteReader()
@@ -110,8 +120,8 @@
                 (toType:IDataReader->'Result)  = 
            try
               let someValues = [
-                        use cn = justCreateCn(provider,connectionString)
-                        use cmd = justCreateCmd(provider,connectionString,cn, sql)  
+                        use cn =  CnFactory.create(provider,connectionString)
+                        use cmd = CmdFactory.create(provider,connectionString,cn, sql)  
                         cmd.CommandType<-ct 
                         cn.Open()
                         use reader = cmd.ExecuteReader()
@@ -129,8 +139,8 @@
                   (ct:CommandType )
                   (parameters:seq<string*'paramValue>) = 
             try
-                use cn = justCreateCn(provider,connectionString)
-                use cmd = justCreateCmd(provider,connectionString,cn, sql)  
+                use cn =  CnFactory.create(provider,connectionString)
+                use cmd = CmdFactory.create(provider,connectionString,cn, sql)  
                 cmd.CommandType<-ct 
                 cn.Open()
                 let recordsAffected = cmd.ExecuteNonQuery()

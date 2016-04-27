@@ -11,11 +11,25 @@
     
         let dapperParametrizedQuery<'Result> (connection:IDbConnection) (sql:string) (param:obj) : 'Result seq =
             connection.Query<'Result>(sql, param)
-//    
-//        let dapperMapParametrizedQuery<'Result> (sql:string) (param : Map<string,_>) (connection:IDbConnection) : 'Result seq =
-//            let expando = ExpandoObject()
-//            let expandoDictionary = expando :> IDictionary<string,obj>
-//            for paramValue in param do
-//                expandoDictionary.Add(paramValue.Key, paramValue.Value :> obj)
-//    
-//            connection |> dapperParametrizedQuery sql expando
+
+        let query2<'Result> (connection:IDbConnection, sql:string) =
+            connection.Query<'Result>(sql)
+    
+        let query3<'Result> (connection:IDbConnection,sql:string,param:obj) : 'Result seq =
+            connection.Query<'Result>(sql, param)
+
+//----------
+        //simple type, can't define an optional parameter
+        type inputDb2 = {connection:IDbConnection; sql:string; param:obj}
+
+        //class with optional parameter
+        type inputDb(connection:IDbConnection, sql:string, ?param:obj) = 
+                member this.Connection = connection
+                member this.Sql = sql
+                member this.Param = param
+
+        let query<'Result> (input:inputDb) : 'Result seq =
+            match input.Param with
+            | Some p -> input.Connection.Query<'Result>(input.Sql, p)
+            | None ->  input.Connection.Query<'Result>(input.Sql)
+//---------
