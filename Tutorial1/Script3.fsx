@@ -27,12 +27,12 @@ module AccessUser =
 
     
     let result = query 
-                        CN_STRING 
-                        SQLServer 
-                        "Select * from tbUsers" 
-                        CommandType.Text 
-                        Seq.empty 
-                        toUser
+                        (CN_STRING, 
+                        SQLServer,
+                        "Select * from tbUsers",
+                        CommandType.Text, 
+                        Seq.empty, 
+                        toUser)
 
 //    match result with
 //    | Success x -> Seq.iter display x
@@ -45,12 +45,12 @@ module AccessUser =
     with 
       | ex-> printfn "errore: %s " ex.Message
 
-    let result3 = query3 
+    let result3 = queryList 
                         CN_STRING 
                         SQLServer 
                         "Select * from tbUsers" 
                         CommandType.Text 
-                        Seq.empty 
+                        List.empty 
                         toUser
 
     match result3 with

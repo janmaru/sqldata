@@ -81,12 +81,12 @@
                             yield reader |> toType
                    }
     
-        let query (connectionString: string)
-                (provider:SQLProvider)
-                (sql: string)
-                (ct:CommandType)
-                (parameters:seq<string*'paramValue>)
-                (toType:IDataReader->'Result)  = 
+        let query (connectionString: string,
+                   provider:SQLProvider,
+                   sql: string,
+                   ct:CommandType,
+                   parameters:seq<string*'paramValue>,
+                   toType:IDataReader->'Result)  = 
            try
               let someValues = seq { 
                         use cn = justCreateCn(provider,connectionString)
