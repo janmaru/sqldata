@@ -49,7 +49,7 @@ And finally:
 
 		Seq.iter display x
 
-Also, we want to provide some structure for functionan composition and in order to do so, we're going to use the Railway Pattern. All the functions for this pattern are provided in Railway.fs
+Also, we want to provide some structure for functional composition and in order to do so, we're going to use the Railway Pattern. All the functions for this pattern are provided in Railway.fs
 
 'Cause sequences are lazy loaded we're going to differ the previous method using a list of 'a.
 
