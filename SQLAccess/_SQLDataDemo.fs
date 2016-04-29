@@ -1,10 +1,14 @@
-﻿namespace SQLAccess
-    module SQLDataFSharp =
-        open System.Data
-        open System.Data.SQLite
-        open System.Data.SqlClient
-        open System.Data.SqlServerCe
+﻿// demo file only, used to prove some point
+// interesting in order to deline the building of the library
 
+namespace SQLAccess
+    open System.Data
+    open System.Data.SQLite
+    open System.Data.SqlClient
+    open System.Data.SqlServerCe
+    open Railway
+
+    module SQLDataFSharp =
         //method to check connection
         let check (connectionString: string)  =
             use cn = new SQLiteConnection(connectionString)
@@ -171,3 +175,24 @@
                 cn.Open()
                 cmd.ExecuteNonQuery()
                  
+        let query (connectionString: string,
+                   provider:SQLProvider,
+                   sql: string,
+                   commandType:CommandType,
+                   parameters:seq<string*'paramValue>,
+                   bind:IDataReader->'Result)  = 
+           try
+              let someValues = seq { 
+                        use cn =  CnFactory.create(provider,connectionString)
+                        use cmd = CmdFactory.create(provider,connectionString,cn, sql)  
+                        cmd.CommandType<-commandType
+                        parameters 
+                             |> Seq.iter (fun p-> cmd.Parameters.Add(PrmFactory.create(provider, p)) |> ignore)
+                        cn.Open()
+                        use reader = cmd.ExecuteReader()
+                        while reader.Read() do
+                            yield reader |> bind
+                   }
+              Success someValues
+           with
+             | ex -> Failure ex.Message

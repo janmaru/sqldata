@@ -43,8 +43,7 @@ module AccessUser =
     type User = { Id:int ; Name:string; Surname:string; Age:int}
     
     let getUsers connection =
-        "SELECT * From tbUsers"
-        |> dapperQuery<User> connection
+        uQuery<User> (connection,"SELECT * From tbUsers",null)
 
     
     let listOfUser = getUsers (new SQLiteConnection(@"Data Source=D:\PAKET_PRESENTATION\SQLAccess\Tutorial1\bin\Debug\test.db;Version=3;"))
@@ -54,8 +53,7 @@ module AccessUser =
     type UserSelectArgs = { SelectedUserId:int}
 
     let getUser userId connection =
-        {SelectedUserId=userId} 
-        |> dapperParametrizedQuery<User>  connection  "SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId"
+        uQuery<User> (connection,"SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId",{SelectedUserId=userId})
         |> Seq.head
 
     let singleUser = getUser 1 (new SQLiteConnection(@"Data Source=D:\PAKET_PRESENTATION\SQLAccess\Tutorial1\bin\Debug\test.db;Version=3;"))

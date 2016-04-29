@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Data
+open SQLAccess
 open SQLAccess.Railway
 open SQLAccess.SQLData 
 
@@ -26,32 +27,31 @@ module AccessUser =
         }  
 
     
-    let result = query 
-                        (CN_STRING, 
-                        SQLServer,
+    let result = uQuery(SQLServer,
+                        CN_STRING,
                         "Select * from tbUsers",
                         CommandType.Text, 
-                        Seq.empty, 
+                        Seq.empty,
                         toUser)
 
 //    match result with
 //    | Success x -> Seq.iter display x
 //    | Failure y ->  printfn "errore: %s" y
 
-    try
-        match result with
-        | Success x -> Seq.iter display x
-        | _ -> 0 |>ignore
-    with 
-      | ex-> printfn "errore: %s " ex.Message
+//    try
+//        match result with
+//        | Success x -> Seq.iter display x
+//        | _ -> 0 |>ignore
+//    with 
+//      | ex-> printfn "errore: %s " ex.Message
 
-    let result3 = queryList 
-                        CN_STRING 
-                        SQLServer 
-                        "Select * from tbUsers" 
-                        CommandType.Text 
-                        List.empty 
-                        toUser
+    let result3 = query 
+                       (SQLServer,
+                        CN_STRING ,                       
+                        "Select * from tbUsers",
+                        CommandType.Text,
+                        List.empty,
+                        toUser)
 
     match result3 with
     | Success x -> Seq.iter display x

@@ -17,9 +17,8 @@ module AccessUser =
     [<CLIMutable>] 
     type User = { Id:int ; Name:string; Surname:string; Age:int}
 
-    let getUsers connection =
-        "SELECT * From tbUsers"
-        |> dapperQuery<User> connection
+    let getUsers connection =        
+        uQuery<User> (connection,"SELECT * From tbUsers",null)
 
     let listOfUser = getUsers (new SqlConnection(CN_STRING))
     listOfUser |> Seq.iter (fun x  ->  printfn "%s %s" x.Name x.Surname) 
@@ -28,8 +27,7 @@ module AccessUser =
     type UserSelectArgs = { SelectedUserId:int}
 
     let getUser userId connection =
-        {SelectedUserId=userId} 
-        |> dapperParametrizedQuery<User>  connection  "SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId"
+        uQuery<User>  (connection,"SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId",{SelectedUserId=userId})
         |> Seq.head
 
     let singleUser = getUser 1 (new SqlConnection(CN_STRING))
