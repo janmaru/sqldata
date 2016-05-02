@@ -75,6 +75,12 @@
             createCn (provider,connectionString) 
             >>= simpleCheckConnection
 
+///*******
+//A sequence is a logical series of elements all of one type. 
+//Sequences are particularly useful when you have a large, ordered collection of data but do not necessarily expect to use all the elements. 
+//Individual sequence elements are computed only as required, so a sequence can provide better performance than a list in situations in which not all the elements are used.
+///*******
+
        //query some records, input tuple, no Result output but a simple sequence
         let uQuery (provider:SQLProvider,
                     connectionString: string,
@@ -124,8 +130,7 @@
                       connectionString: string,
                       sql: string,
                       commandType:CommandType,
-                      parameters:seq<string*'paramValue>,
-                      bind:IDataReader->'Result)  = 
+                      parameters:seq<string*'paramValue>)  = 
             try
                 use cn =  CnFactory.create(provider,connectionString)
                 use cmd = CmdFactory.create(provider,connectionString,cn, sql)

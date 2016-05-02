@@ -125,3 +125,29 @@ where query is defined as:
 	      Success someValues
 	   with
 	     | ex -> Failure ex.Message
+
+
+The library provies also a mean to execute a non query command, i.e. an INSERT throught the following method:
+
+        //execute some command
+        let nonQuery (provider:SQLProvider,
+                      connectionString: string,
+                      sql: string,
+                      commandType:CommandType,
+                      parameters:seq<string*'paramValue>)  = 
+            try
+                use cn =  CnFactory.create(provider,connectionString)
+                use cmd = CmdFactory.create(provider,connectionString,cn, sql)
+                cmd.CommandType<-commandType   
+                parameters 
+                    |> Seq.iter (fun p-> cmd.Parameters.Add(PrmFactory.create(provider, p)) |> ignore)
+
+                cn.Open()
+                let recordsAffected = cmd.ExecuteNonQuery()
+                Success recordsAffected
+            with
+                | ex -> Failure ex.Message
+
+
+
+
