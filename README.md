@@ -127,7 +127,7 @@ where query is defined as:
 	     | ex -> Failure ex.Message
 
 
-The library provies also a mean to execute a non query command, i.e. an INSERT throught the following method:
+The library provides also a mean to execute a **non query command**, i.e. an **INSERT** throught the following method:
 
         //execute some command
         let nonQuery (provider:SQLProvider,
