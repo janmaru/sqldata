@@ -4,7 +4,7 @@ open System
 open System.IO
 open System.Data
 open System.Data.SqlClient
-open SQLAccess.DapperFSharp
+open SQLAccess
 open SQLAccess.SQLDataFSharp
 
 module AccessUser = 

@@ -1,6 +1,6 @@
 ﻿
 
-open SQLAccess.DapperFSharp
+open SQLAccess.MappingData
 open SQLAccess.SQLDataFSharp
 open System.Data
 open System.Data.SQLite

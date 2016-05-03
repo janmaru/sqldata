@@ -36,7 +36,7 @@ The third one creates a parameter that implements **the abstract class DbParamet
 	            prm
 
 The **SQL Data Library** itself uses these three factory methods in order to create and later use/open connections and use/execute commands.
-For istance the first unsafe (we call it this way 'cause we'll not cacth any failure nor bind data into a success type) method called uQuery:
+For istance the first unsafe (we call it this way 'cause we'll not cacth any failure nor bind any data into a success type) method called uQuery:
 
 	   let uQuery (provider:SQLProvider,
 	                connectionString: string,

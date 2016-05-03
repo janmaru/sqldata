@@ -54,8 +54,8 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Railway.fs" />
-    <Compile Include="Dapper.fs" />
     <Compile Include="SQLData.fs" />
+    <Compile Include="Dapper.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

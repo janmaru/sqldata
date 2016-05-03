@@ -45,13 +45,28 @@ namespace SQLAccess
             member this.Param = param
 
     module MappingData =
-        let uQuery<'Result> (connection:IDbConnection,sql:string,param:obj) : 'Result seq =
-            match box param with
-            | null -> connection.Query<'Result>(sql)
-            | _ ->  connection.Query<'Result>(sql, param)
 
-        let query<'Result> (input:inputDb) : 'Result seq =
+        let uQuery<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) : 'a seq =
+            use cn = CnFactory.create(provider, connectionString) 
+            match box param with
+                | null -> cn.Query<'a>(sql)
+                | _ ->  cn.Query<'a>(sql, param)
+  
+        let uQuery2<'Result> (input:inputDb) : 'Result seq =
             match input.Param with
             | Some p -> input.Connection.Query<'Result>(input.Sql, p)
             | None ->  input.Connection.Query<'Result>(input.Sql)
+              
+        let query<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
+            use cn = CnFactory.create(provider, connectionString) 
+            try
+                let result = 
+                    match box param with
+                    | null -> cn.Query<'a>(sql)
+                    | _ ->  cn.Query<'a>(sql, param)
+                Success result
+            with
+            | ex -> Failure ex.Message
+
+
  
