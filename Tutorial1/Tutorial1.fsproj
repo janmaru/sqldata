@@ -68,7 +68,6 @@
     <Compile Include="Program.fs" />
     <None Include="SQLite_Tutorial.fsx" />
     <None Include="SQLServer_Tutorial.fsx" />
-    <None Include="Script3.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

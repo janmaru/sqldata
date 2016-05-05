@@ -1,6 +1,4 @@
-﻿
-
-open SQLAccess.MappingData
+﻿open SQLAccess.MappingData
 open SQLAccess.SQLDataFSharp
 open System.Data
 open System.Data.SQLite
@@ -36,7 +34,7 @@ let main argv =
         //let rnd = Random().Next passing a function
         let rnd = Random().Next()
 
-        //let single_user= nonQueryParametrizedSQLite @"Data Source=test.db;Version=3;" "INSERT into tbUsers(Name, Surname) VALUES(@Name, @Surname)" CommandType.Text [("@Name", ("pippo" + rnd.ToString()));("@Surname", "di paperinia")] toUser
+        let single_user= nonQueryParametrizedSQLite @"Data Source=test.db;Version=3;" "INSERT into tbUsers(Name, Surname) VALUES(@Name, @Surname)" CommandType.Text [("@Name", ("pippo" + rnd.ToString()));("@Surname", "di paperinia")] toUser
 
         Console.ReadKey() |> ignore;
         0

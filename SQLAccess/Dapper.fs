@@ -52,11 +52,15 @@ namespace SQLAccess
                 | null -> cn.Query<'a>(sql)
                 | _ ->  cn.Query<'a>(sql, param)
   
-        let uQuery2<'Result> (input:inputDb) : 'Result seq =
+        let uQuery2<'a> (input:inputDb) : 'a seq =
             match input.Param with
-            | Some p -> input.Connection.Query<'Result>(input.Sql, p)
-            | None ->  input.Connection.Query<'Result>(input.Sql)
-              
+            | Some p -> input.Connection.Query<'a>(input.Sql, p)
+            | None ->  input.Connection.Query<'a>(input.Sql)
+ 
+ //ExecuteScalar with Dapper
+ //The reason that we never added one is simply: .Single() does the same thing.  
+ //conn.Query<string>(sql).Single();     
+     
         let query<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
             use cn = CnFactory.create(provider, connectionString) 
             try
