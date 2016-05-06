@@ -1,7 +1,7 @@
 ﻿// demo file only, used to prove some point
 // interesting in order to deline the building of the library
 
-namespace SQLAccess
+namespace SQLData
     open System.Data
     open System.Data.SQLite
     open System.Data.SqlClient

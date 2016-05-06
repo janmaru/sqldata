@@ -1,12 +1,12 @@
-﻿#r @"..\SQLAccess\bin\Debug\SQLAccess.dll"
+﻿#r @"..\SQLAccess\bin\Debug\SQLData.dll"
 
 open System
 open System.IO
 open System.Data
 open System.Data.SqlClient
-open SQLAccess
-open SQLAccess.Railway
-open SQLAccess.MappingData
+open SQLData
+open SQLData.Railway
+open SQLData.MappingData
 
 
 //BEGIN DAPPER -----------------------------------------------
@@ -35,7 +35,7 @@ printfn "%s" singleUser.Surname
 // END DAPPER -----------------------------------------------
 
 
-//BEGIN SQLACCESS -------------------------------------------
+//BEGIN SQLData -------------------------------------------
 
 //UserId is an int NOT an int64 -->SQLServer
 type User2 = { UserId:int ; Name:string; Surname:string}
@@ -62,5 +62,5 @@ match result with
 | Failure y ->  printfn "errore: %s" y
 
 
-//END SQLACCESS   -------------------------------------------
+//END SQLData   -------------------------------------------
 

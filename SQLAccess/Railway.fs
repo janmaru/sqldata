@@ -1,4 +1,4 @@
-﻿namespace SQLAccess
+﻿namespace SQLData
     module Railway = 
         // the two-track type
         type Result<'TSuccess,'TFailure> = 

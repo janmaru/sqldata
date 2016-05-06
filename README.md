@@ -149,5 +149,25 @@ The library provides also a mean to execute a **non query command**, i.e. an **I
                 | ex -> Failure ex.Message
 
 
+And if is needed a value from the inserted row, for istance an identity ID then mixedQuery can be used:
 
+
+        //execute all CRUD mixed commands; useful for getting the autoincremented id
+        let mixedQuery (provider:SQLProvider,
+                        connectionString: string,
+                        sql: string,
+                        commandType:CommandType,
+                        parameters:seq<string*'paramValue>)  = 
+            try
+                use cn =  CnFactory.create(provider,connectionString)
+                use cmd = CmdFactory.create(provider,connectionString,cn, sql)
+                cmd.CommandType<-commandType   
+                parameters 
+                    |> Seq.iter (fun p-> cmd.Parameters.Add(PrmFactory.create(provider, p)) |> ignore)
+
+                cn.Open()
+                let value = cmd.ExecuteScalar()
+                Success value
+            with
+                | ex -> Failure ex.Message
 

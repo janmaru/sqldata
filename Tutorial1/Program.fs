@@ -1,5 +1,5 @@
-﻿open SQLAccess.MappingData
-open SQLAccess.SQLDataFSharp
+﻿open SQLData.MappingData
+open SQLData.SQLDataFSharp
 open System.Data
 open System.Data.SQLite
 open System

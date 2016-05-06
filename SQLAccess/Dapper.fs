@@ -26,7 +26,7 @@
 ////Performance benchmarks are available here: https://github.com/StackExchange/dapper-dot-net/blob/master/Dapper.Tests/PerformanceTests.cs
 ///*******
 
-namespace SQLAccess
+namespace SQLData
     open System.Data // IDbConnection - IDbCommand
     open System.Data.Common //  DbParameter
     open System.Data.SQLite
@@ -72,5 +72,15 @@ namespace SQLAccess
             with
             | ex -> Failure ex.Message
 
+        let nonQuery (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
+            use cn = CnFactory.create(provider, connectionString) 
+            try
+                let result = 
+                    match box param with
+                    | null -> cn.Execute(sql)
+                    | _ ->  cn.Execute(sql, param)
+                Success result
+            with
+            | ex -> Failure ex.Message
 
  
