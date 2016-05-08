@@ -26,61 +26,52 @@
 ////Performance benchmarks are available here: https://github.com/StackExchange/dapper-dot-net/blob/master/Dapper.Tests/PerformanceTests.cs
 ///*******
 
-namespace SQLData
-    open System.Data // IDbConnection - IDbCommand
-    open System.Data.Common //  DbParameter
-    open System.Data.SQLite
-    open System.Data.SqlClient
-    open System.Data.SqlServerCe
-    open Railway
-    open Dapper
+namespace Mahamudra.System.Data.Sql
+open System.Data // IDbConnection - IDbCommand
+open System.Data.Common //  DbParameter
+open System.Data.SQLite
+open System.Data.SqlClient
+open System.Data.SqlServerCe
+open Dapper
+open Mahamudra.System.Railway
 
-    //simple type, can't define an optional parameter
-    type inputDb2 = {connection:IDbConnection; sql:string; param:obj}
+module MappingData =
 
-    //class with optional parameter
-    type inputDb(connection:IDbConnection, sql:string, ?param:obj) = 
-            member this.Connection = connection
-            member this.Sql = sql
-            member this.Param = param
-
-    module MappingData =
-
-        let uQuery<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) : 'a seq =
-            use cn = CnFactory.create(provider, connectionString) 
-            match box param with
+    let uQuery<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) : 'a seq =
+        use cn = CnFactory.create(provider, connectionString) 
+        match box param with
+            | null -> cn.Query<'a>(sql)
+            | _ ->  cn.Query<'a>(sql, param)
+  
+    let uQuery2<'a> (input:inputDb) : 'a seq =
+        match input.Param with
+        | Some p -> input.Connection.Query<'a>(input.Sql, p)
+        | None ->  input.Connection.Query<'a>(input.Sql)
+ 
+//ExecuteScalar with Dapper
+//The reason that we never added one is simply: .Single() does the same thing.  
+//conn.Query<string>(sql).Single();     
+     
+    let query<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
+        use cn = CnFactory.create(provider, connectionString) 
+        try
+            let result = 
+                match box param with
                 | null -> cn.Query<'a>(sql)
                 | _ ->  cn.Query<'a>(sql, param)
-  
-        let uQuery2<'a> (input:inputDb) : 'a seq =
-            match input.Param with
-            | Some p -> input.Connection.Query<'a>(input.Sql, p)
-            | None ->  input.Connection.Query<'a>(input.Sql)
- 
- //ExecuteScalar with Dapper
- //The reason that we never added one is simply: .Single() does the same thing.  
- //conn.Query<string>(sql).Single();     
-     
-        let query<'a> (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
-            use cn = CnFactory.create(provider, connectionString) 
-            try
-                let result = 
-                    match box param with
-                    | null -> cn.Query<'a>(sql)
-                    | _ ->  cn.Query<'a>(sql, param)
-                Success result
-            with
-            | ex -> Failure ex.Message
+            Success result
+        with
+        | ex -> Failure ex.Message
 
-        let nonQuery (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
-            use cn = CnFactory.create(provider, connectionString) 
-            try
-                let result = 
-                    match box param with
-                    | null -> cn.Execute(sql)
-                    | _ ->  cn.Execute(sql, param)
-                Success result
-            with
-            | ex -> Failure ex.Message
+    let nonQuery (provider:SQLProvider,connectionString:string,sql:string, param:obj) =
+        use cn = CnFactory.create(provider, connectionString) 
+        try
+            let result = 
+                match box param with
+                | null -> cn.Execute(sql)
+                | _ ->  cn.Execute(sql, param)
+            Success result
+        with
+        | ex -> Failure ex.Message
 
  

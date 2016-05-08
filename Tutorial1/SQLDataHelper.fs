@@ -6,7 +6,8 @@ namespace SQLData
     open System.Data.SQLite
     open System.Data.SqlClient
     open System.Data.SqlServerCe
-    open Railway
+    open Mahamudra.System.Railway
+    open Mahamudra.System.Data.Sql
 
     module SQLDataFSharp =
         //method to check connection

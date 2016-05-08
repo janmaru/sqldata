@@ -6,10 +6,9 @@ open System.Runtime.InteropServices
 open System.IO
 open System.Data
 open System.Data.SQLite
-open SQLData
-open SQLData.Railway
-open SQLData.SQLData
-
+open Mahamudra.System.Railway
+open Mahamudra.System.Data.Sql 
+open Mahamudra.System.Data.Sql.SQLData
 
 module Kernel =
     [<DllImport("Kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)>]
@@ -123,7 +122,8 @@ match result5 with
 //and might not equal either the old or the new last insert rowid.
 
 //************* using a mini orm for mapping
-open SQLData.MappingData
+open MappingData
+
 
 //only to trigger the interop SQLite check for x64 architecture
 let result4 = checkConnection (SQLite, sprintf @"Data Source=%s;Version=3;" DBPATH)

@@ -4,9 +4,9 @@ open System
 open System.IO
 open System.Data
 open System.Data.SqlClient
-open SQLData
-open SQLData.Railway
-open SQLData.MappingData
+open Mahamudra.System.Railway
+open Mahamudra.System.Data.Sql 
+open Mahamudra.System.Data.Sql.SQLData
 
 
 //BEGIN DAPPER -----------------------------------------------

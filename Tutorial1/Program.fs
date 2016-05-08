@@ -1,4 +1,4 @@
-﻿open SQLData.MappingData
+﻿open Mahamudra.System.Data.Sql.MappingData
 open SQLData.SQLDataFSharp
 open System.Data
 open System.Data.SQLite
