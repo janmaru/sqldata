@@ -1,6 +1,9 @@
 # SQL Data #
 
-This is a quite simple library. Its aim is to provide two simple methods to query data from different SQL providers as **MSSQL Server**, **SQLite** and **SQLCompact** (hopefully MySQL and PostgreSQL will follow soon after).
+This is a quite simple library. Its aim is to provide few simple methods to query data from different SQL providers as **MSSQL Server**, **SQLite** and **SQLCompact** (hopefully MySQL and PostgreSQL will follow soon after) in the old **ADO.NET** fashion way.
+For any other use we provided a simple wrapper to **Dapper mini-ORM** and, also, a currying version for any taste.
+
+
 First of all, we created three factory methods that we can call from all the other functions:
 The first one creates a connection that implements the **IDbConnection interface**.
 
