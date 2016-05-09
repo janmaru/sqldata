@@ -69,7 +69,6 @@
     <None Include="SQLite_Tutorial.fsx" />
     <None Include="SQLServer_Tutorial.fsx" />
     <Content Include="packages.config" />
-    <None Include="select_user.sql" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Dapper">

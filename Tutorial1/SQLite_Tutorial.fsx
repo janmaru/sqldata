@@ -23,20 +23,22 @@ Kernel.LoadLibrary(Path.Combine(@"..\SQLAccess\bin\Debug\", "SQLData.dll"))
 //The rowid is always available as an undeclared column named ROWID, OID, or _ROWID_ as long as those names are not also used by explicitly declared columns.
 // If the table has a column of type INTEGER PRIMARY KEY then that column is another alias for the rowid.
 
-type User = { UserId:int64 ; Name:string; Surname:string}
+type Supplier = { SupplierID:Int64;CompanyName:string;ContactName:string; ContactTitle:string; Address:string}
 
-let display user =
-            printfn "%A - %s %s" user.UserId  user.Name  user.Surname
+let display supplier =
+            printfn "%A - %s %s" supplier.SupplierID  supplier.CompanyName supplier.ContactTitle
 
-let toUser (reader: IDataReader ) =
+let toSuppliers (reader: IDataReader ) =
     { 
-        UserId = unbox(reader.["ID"])
-        Name = unbox(reader.["Name"])
-        Surname = unbox(reader.["SurName"])
+        SupplierID = unbox(reader.["SupplierID"])
+        CompanyName = unbox(reader.["CompanyName"])
+        ContactTitle = unbox(reader.["ContactTitle"])
+        ContactName= unbox(reader.["ContactName"])
+        Address = unbox(reader.["Address"])
     }  
 
-let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\bin\Debug\test.db" 
-//let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\bin\Debug\test666.db" 
+let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\data\northwind.db" 
+//let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\data\northwind3.db" 
 // connection string
     //    //Basic
     //    //Data Source=c:\mydb.db;Version=3;
@@ -52,47 +54,47 @@ let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\bin\Debug\test.db"
     //    //Data Source=c:\mydb.db;Version=3;Password=myPassword;
 
 //unsafe query without parameters
-let users = SQLData.uQuery (SQLite, 
+let suppliers = SQLData.uQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "Select * from tbUsers", CommandType.Text, Seq.empty, 
-                            toUser)
-Seq.iter display users
+                            "Select * from [Suppliers]", CommandType.Text, Seq.empty, 
+                            toSuppliers)
+Seq.iter display suppliers
 
 //railway pattern query without parameters
 let result= SQLData.query (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "Select * from tbUsers", CommandType.Text, Seq.empty, 
-                            toUser)
+                            "Select * from [Suppliers]", CommandType.Text, Seq.empty, 
+                            toSuppliers)
 match result with
 | Success x -> Seq.iter display x
 | Failure y ->  printfn "errore: %s" y
 
 //query using parameters
-let single_user = SQLData.uQuery (SQLite, 
+let Süßwaren = SQLData.uQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "Select * from tbUsers WHERE id=@id", CommandType.Text, [("@id", 1)] , 
-                            toUser)
+                            "Select * from [Suppliers] WHERE SupplierID=@SupplierID", CommandType.Text, [("@SupplierID", 11)] , 
+                            toSuppliers)
  
-Seq.iter display  single_user
+Seq.iter display Süßwaren
 
 //railway query with parameters
-let result3 = SQLData.query (SQLite, 
+let Süßwaren3 = SQLData.query (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "Select * from tbUsers WHERE id=@id", CommandType.Text, [("@id", 1)] , 
-                            toUser)
+                            "Select * from [Suppliers] WHERE SupplierID=@SupplierID", CommandType.Text, [("@SupplierID", 11)] , 
+                            toSuppliers)
 
-match result3 with
+match Süßwaren3 with
 | Success x -> Seq.iter display x
 | Failure y ->  printfn "errore: %s" y
 
 //let rnd = Random().Next passing a function, not a value!!!!
 let rnd = Random().Next()
 
-let result2 = SQLData.nonQuery (SQLite, 
+let JohnDoe = SQLData.nonQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "INSERT into tbUsers(Name, Surname) VALUES(@Name, @Surname)", CommandType.Text, [("@Name", ("pippo" + rnd.ToString()));("@Surname", "di paperinia")])
+                            "INSERT into Suppliers(CompanyName,ContactName) VALUES(@CompanyName,@ContactName)", CommandType.Text, [("@CompanyName", ("Random Company " + rnd.ToString()));("@ContactName", "John Doe")])
 
-match result2 with
+match JohnDoe with
 | Success x -> printfn "number of records affected: %A" x
 | Failure y ->  printfn "errore: %s" y
 
@@ -106,13 +108,13 @@ match result2 with
 //
 //4. If the AUTOINCREMENT keyword appears after INTEGER PRIMARY KEY, that changes the automatic ROWID assignment algorithm to prevent the reuse of ROWIDs over the lifetime of the database. In other words, the purpose of AUTOINCREMENT is to prevent the reuse of ROWIDs from previously deleted rows
 
-let result5 = SQLData.mixedQuery (SQLite, 
+let SupplierID_Dee = SQLData.mixedQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "INSERT into tbUsers(Name, Surname) VALUES(@Name, @Surname);SELECT last_insert_rowid()", CommandType.Text, [("@Name", ("pippo" + rnd.ToString()));("@Surname", "di paperinia")])
+                            "INSERT into Suppliers(CompanyName,ContactName) VALUES(@CompanyName,@ContactName);SELECT last_insert_rowid()", CommandType.Text, [("@CompanyName", ("Random Company " + rnd.ToString()));("@ContactName", "Dee")])
 
 //select seq from sqlite_sequence where name="table_name"
 
-match result5 with
+match SupplierID_Dee with
 | Success x -> printfn "Id inserted (autoincrement): %A" x
 | Failure y ->  printfn "errore: %s" y
 
@@ -134,55 +136,57 @@ match result4 with
 
 //F# immutable records are not POCO types; they do not have default constructors,
 // or have setters for the properties. 
-type User2 = { Id:int ; Name:string; Surname:string; Age:int}
+type Supplier2 = { SupplierID:int64;CompanyName:string;ContactName:string; ContactTitle:string; Address:string; Age:int; Sex:string}
 
 //the F# compiler emits a default constructor and property setters into the generated IL 
 //for this type (though those features are not exposed to F# code).  
 [<CLIMutable>] 
-type User3 = { Id:int ; Name:string; Surname:string; Age:int}
+type Supplier3 = { SupplierID:int64;Name:string;Title:string; Address:string; Age:int; Sex:string}
 
 // query without parameters    
-let listOfUsers2 = uQuery<User3> (SQLite, 
+let listOfSuppliers3 = uQuery<Supplier3> (SQLite, 
                                   sprintf @"Data Source=%s;Version=3;" DBPATH,
-                                  "SELECT * From tbUsers",
+                                  "Select * from [Suppliers]",
                                   null)
-//inference type user3
-let display2 user =
-            printfn "%A - %s %s" user.Id  user.Name  user.Surname
+//inference type supplier3
+let display3 supplier =
+            printfn "%A - %s %s" supplier.SupplierID  supplier.Name supplier.Title
 
-Seq.iter  display2 listOfUsers2 
+Seq.iter display3 listOfSuppliers3
 
-listOfUsers2 |> Seq.iter (fun x  ->  printfn "%s" x.Name) 
+listOfSuppliers3|> Seq.iter (fun x  ->  printfn "%s" x.Name) 
 
 //query with parameters
 [<CLIMutable>] 
-type UserSelectArgs = { SelectedUserId:int}
+type UserSelectArgs = { SelectedSupplierId:int64}
 
-let singleUser =
-        uQuery<User3> (SQLite, 
+let singleSupplier4 =
+        uQuery<Supplier3> (SQLite, 
                         sprintf @"Data Source=%s;Version=3;" DBPATH,
-                        "SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId",
-                        {SelectedUserId=1})
+                        "SELECT * From [Suppliers] WHERE SupplierID= @SelectedSupplierId",
+                        {SelectedSupplierId=11L})
         |> Seq.head
 
-printfn "%s" singleUser.Surname
+printfn "%s" singleSupplier4.Title
 
 //result with null values
-//val singleUser : User3 = {Id = 1;
-//                          Name = null;
-//                          Surname = "Janus";
-//                          Age = 0;}
+//val singleSupplier4 : Supplier3 = {SupplierID = 11L;
+//                                   Name = null;
+//                                   Title = null;
+//                                   Address = "Tiergartenstraße 5";
+//                                   Age = 0;
+//                                   Sex = null;}
 
 
 //result with type mismatch
 [<CLIMutable>] 
-type User666 = { MyId:int ; MyName:string; Surname:string; MyAge:int}
+type User666 = { MyId:int ; MyName:string; MyContact:string; ContactTitle:string}
 
 let listOfUsers666 = uQuery<User666> (SQLite, 
                                   sprintf @"Data Source=%s;Version=3;" DBPATH,
-                                  "SELECT * From tbUsers",
+                                  "SELECT * From [Suppliers]",
                                   null)
 
-listOfUsers666 |> Seq.iter (fun x  ->  printfn "%s %s %A %A" x.MyName x.Surname x.MyAge x.MyId) 
+listOfUsers666 |> Seq.iter (fun x  ->  printfn "%s %s %A %A" x.MyName x.MyContact x.ContactTitle x.MyId) 
 
-//using aliases  "SELECT ID as MyId, Name as MyName, Surname From tbUsers"
+//using aliases  "SELECT SupplierID as MyId, CompanyName as MyName, ContactName as MyContact, ContactTitle From [Suppliers]"
