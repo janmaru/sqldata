@@ -19,7 +19,7 @@ let CN_STRING = @"Server=.\SQLEXPRESS;Database=test;Trusted_Connection=True;"
 type User = { Id:int ; Name:string; Surname:string; Age:int}
 
 let listOfUser =       
-    uQuery<User> (SQLServer, CN_STRING ,"SELECT * From tbUsers",null)
+    SQLData.uQuery<User> (SQLServer, CN_STRING ,"SELECT * From tbUsers",null)
 
 listOfUser |> Seq.iter (fun x  ->  printfn "%s %s" x.Name x.Surname) 
 
@@ -27,7 +27,7 @@ listOfUser |> Seq.iter (fun x  ->  printfn "%s %s" x.Name x.Surname)
 type UserSelectArgs = { SelectedUserId:int}
 
 let getUser userId =
-    uQuery<User>  (SQLServer, CN_STRING ,"SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId",{SelectedUserId=userId})
+    SQLData.uQuery<User>  (SQLServer, CN_STRING ,"SELECT ID, Surname From tbUsers WHERE ID = @SelectedUserId",{SelectedUserId=userId})
     |> Seq.head
 
 let singleUser = getUser 1  

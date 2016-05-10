@@ -64,6 +64,7 @@
     <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.101.0\build\net451\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.101.0\build\net451\System.Data.SQLite.Core.targets'))" />
   </Target>
   <ItemGroup>
+    <Compile Include="DisplayGrid.fs" />
     <Compile Include="SQLDataHelper.fs" />
     <Compile Include="Program.fs" />
     <None Include="SQLite_Tutorial.fsx" />
@@ -93,12 +94,15 @@
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Controls.Ribbon" />
     <Reference Include="System.Windows.Forms" />
     <ProjectReference Include="..\SQLAccess\SQLAccess.fsproj">
       <Name>SQLAccess</Name>
       <Project>{b9ade194-985b-422a-ba38-927f158ee385}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="System.Xaml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

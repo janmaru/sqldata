@@ -1,6 +1,8 @@
 ﻿#r @"..\packages\System.Data.SQLite.Core.1.0.101.0\lib\net451\System.Data.SQLite.dll"
 #r @"..\SQLAccess\bin\Debug\SQLData.dll"
 
+#load @"DisplayGrid.fs"  //display data
+
 open System
 open System.Runtime.InteropServices
 open System.IO
@@ -9,7 +11,9 @@ open System.Data.SQLite
 open Mahamudra.System.Railway
 open Mahamudra.System.Data.Sql 
 open Mahamudra.System.Data.Sql.SQLData
+open Mahamudra.System.Drawing
 
+ 
 module Kernel =
     [<DllImport("Kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)>]
     extern IntPtr LoadLibrary(string lpFileName);
@@ -30,11 +34,11 @@ let display supplier =
 
 let toSuppliers (reader: IDataReader ) =
     { 
-        SupplierID = unbox(reader.["SupplierID"])
-        CompanyName = unbox(reader.["CompanyName"])
-        ContactTitle = unbox(reader.["ContactTitle"])
-        ContactName= unbox(reader.["ContactName"])
-        Address = unbox(reader.["Address"])
+        SupplierID =  unbox(reader.["SupplierID"])
+        CompanyName = unbox(reader.["CompanyName"]) 
+        ContactTitle = if DBNull.Value.Equals(reader.["ContactTitle"]) then String.Empty else unbox(reader.["ContactTitle"]) 
+        ContactName= if DBNull.Value.Equals(reader.["ContactName"]) then String.Empty else unbox(reader.["ContactName"]) 
+        Address = if DBNull.Value.Equals(reader.["Address"]) then String.Empty else unbox(reader.["Address"]) 
     }  
 
 let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\data\northwind.db" 
@@ -56,9 +60,14 @@ let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\data\northwind.db"
 //unsafe query without parameters
 let suppliers = SQLData.uQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
-                            "Select * from [Suppliers]", CommandType.Text, Seq.empty, 
+                            "Select SupplierID,CompanyName,ContactTitle,ContactName,Address from [Suppliers]", CommandType.Text, Seq.empty, 
                             toSuppliers)
-Seq.iter display suppliers
+try
+    //---------
+    Seq.iter display suppliers //print data on interactive windows
+    //---------
+    δ.draw (suppliers|>Seq.toArray) "Display a list of suppliers" //print in grid windows form
+with | ex -> ex.Message |>ignore
 
 //railway pattern query without parameters
 let result= SQLData.query (SQLite, 
@@ -69,6 +78,10 @@ match result with
 | Success x -> Seq.iter display x
 | Failure y ->  printfn "errore: %s" y
 
+match result with
+| Success x -> δ.draw (suppliers|>Seq.toArray) "Display a list of suppliers"
+| Failure y ->  printfn "errore: %s" y
+
 //query using parameters
 let Süßwaren = SQLData.uQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
@@ -76,6 +89,8 @@ let Süßwaren = SQLData.uQuery (SQLite,
                             toSuppliers)
  
 Seq.iter display Süßwaren
+//--
+δ.draw (Süßwaren|>Seq.toArray) "Display Süßwaren"
 
 //railway query with parameters
 let Süßwaren3 = SQLData.query (SQLite, 
@@ -85,6 +100,10 @@ let Süßwaren3 = SQLData.query (SQLite,
 
 match Süßwaren3 with
 | Success x -> Seq.iter display x
+| Failure y ->  printfn "errore: %s" y
+
+match Süßwaren3 with
+| Success x -> δ.draw (x|>List.toArray) "Display Süßwaren"
 | Failure y ->  printfn "errore: %s" y
 
 //let rnd = Random().Next passing a function, not a value!!!!
@@ -180,13 +199,14 @@ printfn "%s" singleSupplier4.Title
 
 //result with type mismatch
 [<CLIMutable>] 
-type User666 = { MyId:int ; MyName:string; MyContact:string; ContactTitle:string}
+type NewSupplier = { MyId:int ; MyName:string; MyContact:string; ContactTitle:string}
 
-let listOfUsers666 = uQuery<User666> (SQLite, 
+let listOfNewSuppliers = uQuery< NewSupplier> (SQLite, 
                                   sprintf @"Data Source=%s;Version=3;" DBPATH,
                                   "SELECT * From [Suppliers]",
                                   null)
 
-listOfUsers666 |> Seq.iter (fun x  ->  printfn "%s %s %A %A" x.MyName x.MyContact x.ContactTitle x.MyId) 
+listOfNewSuppliers |> Seq.iter (fun x  ->  printfn "%s %s %A %A" x.MyName x.MyContact x.ContactTitle x.MyId) 
 
+DisplayData.draw (listOfNewSuppliers|>Seq.toArray) "Display a list of suppliers"
 //using aliases  "SELECT SupplierID as MyId, CompanyName as MyName, ContactName as MyContact, ContactTitle From [Suppliers]"
