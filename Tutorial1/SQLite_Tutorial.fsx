@@ -1,7 +1,18 @@
-﻿#r @"..\packages\System.Data.SQLite.Core.1.0.101.0\lib\net451\System.Data.SQLite.dll"
+﻿//Display charts ---
+// On Mac OSX use FSharp.Charting.Gtk.fsx
+#I "../packages/FSharp.Charting.0.90.14"
+#load "FSharp.Charting.fsx"
+
+open FSharp.Charting
+open System
+
+//Display grid ---
+#load @"DisplayGrid.fs"  
+
+//Data ---
+#r @"..\packages\System.Data.SQLite.Core.1.0.101.0\lib\net451\System.Data.SQLite.dll"
 #r @"..\SQLAccess\bin\Debug\SQLData.dll"
 
-#load @"DisplayGrid.fs"  //display data
 
 open System
 open System.Runtime.InteropServices
@@ -29,8 +40,10 @@ Kernel.LoadLibrary(Path.Combine(@"..\SQLAccess\bin\Debug\", "SQLData.dll"))
 
 type Supplier = { SupplierID:Int64;CompanyName:string;ContactName:string; ContactTitle:string; Address:string}
 
+type NumberOfOrdersByEmployee= { NumberOfOrders:Int64;  EmployeeName:string}
+
 let display supplier =
-            printfn "%A - %s %s" supplier.SupplierID  supplier.CompanyName supplier.ContactTitle
+            printfn "Id: %A - Name: %s - Contact Title:%s" supplier.SupplierID  supplier.CompanyName supplier.ContactTitle
 
 let toSuppliers (reader: IDataReader ) =
     { 
@@ -41,6 +54,13 @@ let toSuppliers (reader: IDataReader ) =
         Address = if DBNull.Value.Equals(reader.["Address"]) then String.Empty else unbox(reader.["Address"]) 
     }  
 
+let countOrders(reader: IDataReader ) =
+    { 
+        NumberOfOrders =  unbox(reader.["NumberOfOrders"])
+        EmployeeName = unbox(reader.["LastName"]) + " " + unbox(reader.["FirstName"]) 
+    }
+
+       
 let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\data\northwind.db" 
 //let [<Literal>] DBPATH = __SOURCE_DIRECTORY__ + @"\data\northwind3.db" 
 // connection string
@@ -66,7 +86,7 @@ try
     //---------
     Seq.iter display suppliers //print data on interactive windows
     //---------
-    δ.draw (suppliers|>Seq.toArray) "Display a list of suppliers" //print in grid windows form
+    δ.draw (suppliers|>Seq.toList) "Display a list of suppliers" //print in grid windows form
 with | ex -> ex.Message |>ignore
 
 //railway pattern query without parameters
@@ -79,7 +99,7 @@ match result with
 | Failure y ->  printfn "errore: %s" y
 
 match result with
-| Success x -> δ.draw (suppliers|>Seq.toArray) "Display a list of suppliers"
+| Success x -> δ.draw (suppliers|>Seq.toList) "Display a list of suppliers"
 | Failure y ->  printfn "errore: %s" y
 
 //query using parameters
@@ -90,7 +110,31 @@ let Süßwaren = SQLData.uQuery (SQLite,
  
 Seq.iter display Süßwaren
 //--
-δ.draw (Süßwaren|>Seq.toArray) "Display Süßwaren"
+δ.draw (Süßwaren|>Seq.toList) "Display Süßwaren"
+
+
+
+let [<Literal>] sql_orders = @"SELECT COUNT(Employees.EmployeeID) as NumberOfOrders, Employees.LastName, Employees.FirstName  FROM orders INNER JOIN Employees 
+                              ON orders.EmployeeID = employees.EmployeeID 
+                              GROUP BY Employees.EmployeeID"
+
+
+let NumberOfOrders = SQLData.uQuery (SQLite, 
+                            sprintf @"Data Source=%s;Version=3;" DBPATH,
+                            sql_orders, CommandType.Text, Seq.empty, 
+                            countOrders)
+
+
+//display of rows
+δ.draw (NumberOfOrders|>Seq.toList) "Display NumberOfOrders"
+ 
+// Drawing graph of the orders
+Chart.Bar (NumberOfOrders |>Seq.map (fun sup-> sup.EmployeeName, sup.NumberOfOrders))
+
+//display ordered list of rows
+δ.draw (NumberOfOrders|> Seq.sort|>Seq.toList) "Display NumberOfOrders"
+Chart.Column (NumberOfOrders|> Seq.sortDescending |>Seq.map (fun sup-> sup.EmployeeName, sup.NumberOfOrders))
+
 
 //railway query with parameters
 let Süßwaren3 = SQLData.query (SQLite, 
@@ -103,7 +147,7 @@ match Süßwaren3 with
 | Failure y ->  printfn "errore: %s" y
 
 match Süßwaren3 with
-| Success x -> δ.draw (x|>List.toArray) "Display Süßwaren"
+| Success x -> δ.draw (x|>Seq.toList) "Display Süßwaren"
 | Failure y ->  printfn "errore: %s" y
 
 //let rnd = Random().Next passing a function, not a value!!!!
