@@ -118,16 +118,24 @@ let [<Literal>] sql_orders = @"SELECT COUNT(Employees.EmployeeID) as NumberOfOrd
                               ON orders.EmployeeID = employees.EmployeeID 
                               GROUP BY Employees.EmployeeID"
 
+let [<Literal>] sql_orders2 = @"SELECT COUNT(Employees.EmployeeID) as NumberOfOrders, Employees.LastName, Employees.FirstName  FROM orders INNER JOIN Employees 
+                              ON orders.EmployeeID = employees.EmployeeID 
+                              GROUP BY Employees.EmployeeID
+                              ORDER BY COUNT(Employees.EmployeeID) DESC"
 
 let NumberOfOrders = SQLData.uQuery (SQLite, 
                             sprintf @"Data Source=%s;Version=3;" DBPATH,
                             sql_orders, CommandType.Text, Seq.empty, 
                             countOrders)
 
-
+let NumberOfOrders2 = SQLData.uQuery (SQLite, 
+                            sprintf @"Data Source=%s;Version=3;" DBPATH,
+                            sql_orders2, CommandType.Text, Seq.empty, 
+                            countOrders)
 //display of rows
 δ.draw (NumberOfOrders|>Seq.toList) "Display NumberOfOrders"
- 
+δ.draw (NumberOfOrders2|>Seq.toList) "Display NumberOfOrders"
+
 // Drawing graph of the orders
 Chart.Bar (NumberOfOrders |>Seq.map (fun sup-> sup.EmployeeName, sup.NumberOfOrders))
 
